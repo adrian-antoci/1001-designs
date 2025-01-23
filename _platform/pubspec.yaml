@@ -1,0 +1,28 @@
+name: _platform
+description: "A new Flutter project."
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0-334.3.beta
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_tilt: ^3.0.1
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.17
+  zoomable_interactive_viewer: any
+  glassmorphism: ^3.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
