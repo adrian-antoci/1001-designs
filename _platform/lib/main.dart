@@ -1,15 +1,52 @@
-import 'package:_platform/theme/theme.dart';
-import 'package:_platform/widgets/central_panel.dart';
-import 'package:_platform/widgets/side_panel.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
+import 'package:one_thousand_and_one_designs/data_sources/api_data_source.dart';
+import 'package:one_thousand_and_one_designs/data_sources/sources/api_source.dart';
+import 'package:one_thousand_and_one_designs/pages/home_page/home_page.dart';
+import 'package:one_thousand_and_one_designs/pages/home_page/home_page_cubit.dart';
+import 'package:one_thousand_and_one_designs/pages/home_page/use_cases/fetch_designs_use_case.dart';
+import 'package:one_thousand_and_one_designs/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+final getIt = GetIt.instance;
+
 void main() {
-  runApp(const MyApp());
+  usePathUrlStrategy();
+
+  AppConfig config = AppConfig(env: AppEnv.prod, apiBaseUrl: 'https://url.com');
+
+  getIt.registerFactory<AppConfig>(() => config);
+
+  // data sources
+  getIt.registerFactory<APIDataSource>(() => ApiSource(getIt.get()));
+
+  // use cases
+  getIt.registerFactory(() => FetchDesignsUseCase(getIt.get()));
+
+  // cubits
+  getIt.registerFactory(() => HomePageCubit(getIt.get()));
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final _router = GoRouter(
+    initialLocation: '/d/1',
+    routes: [
+      GoRoute(
+        path: '/d/:index',
+        builder: (context, state) => BlocProvider(
+          create: (context) => getIt<HomePageCubit>()..loadPage(int.tryParse(state.pathParameters['index'] ?? '')),
+          child: MyHomePage(),
+        ),
+      ),
+    ],
+  );
 
   ThemeData _buildTheme(brightness) {
     var baseTheme = ThemeData(
@@ -18,48 +55,29 @@ class MyApp extends StatelessWidget {
     );
 
     return baseTheme.copyWith(
-      colorScheme: MaterialTheme.darkScheme(),
+      colorScheme: MaterialTheme.lightScheme(),
       textTheme: GoogleFonts.montserratTextTheme(baseTheme.textTheme),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: '1001 Designs',
       theme: _buildTheme(Brightness.light),
-      home: MyHomePage(),
+      routerConfig: _router,
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+enum AppEnv { prod }
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+class AppConfig {
+  AppConfig({
+    required this.env,
+    required this.apiBaseUrl,
+  });
 
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('background.jpeg'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Stack(
-          children: [
-            CentralPanel(),
-            SidePanel(),
-          ],
-        ),
-      ),
-    );
-  }
+  final AppEnv env;
+  final String apiBaseUrl;
 }

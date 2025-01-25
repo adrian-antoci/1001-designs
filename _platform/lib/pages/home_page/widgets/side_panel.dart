@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'scale_on_hover_container.dart';
+import '../../../widgets/scale_on_hover_container.dart';
 
 class SidePanel extends StatelessWidget {
   final _panel = Colors.deepPurpleAccent;
@@ -37,13 +37,34 @@ class SidePanel extends StatelessWidget {
                 style:
                     GoogleFonts.montserrat().copyWith(color: Colors.white, fontSize: 27, fontWeight: FontWeight.w900),
               ),
-              TextField(
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.transparent,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: TextField(
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                      borderSide: BorderSide(width: 2, color: Colors.white),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                      borderSide: BorderSide(width: 2, color: Colors.white),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                      borderSide: BorderSide(width: 2, color: Colors.white),
+                    ),
+                    prefixIcon: Padding(
+                      padding: EdgeInsets.only(left: 4),
+                      child: Icon(
+                        Icons.search,
+                        color: Colors.white,
+                      ),
+                    ),
+                    filled: true,
+                    hintStyle: TextStyle(color: Colors.white, fontSize: 12),
+                    hintText: "Search by name...",
+                    fillColor: Colors.transparent,
                   ),
                 ),
               ),
