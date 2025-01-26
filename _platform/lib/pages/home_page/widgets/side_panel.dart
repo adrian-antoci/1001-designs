@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:one_thousand_and_one_designs/data_sources/models/api_models.dart';
+import 'package:one_thousand_and_one_designs/pages/home_page/home_page_cubit.dart';
 
 import '../../../widgets/scale_on_hover_container.dart';
 
 class SidePanel extends StatelessWidget {
   final _panel = Colors.deepPurpleAccent;
 
-  SidePanel({super.key});
+  const SidePanel({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +73,10 @@ class SidePanel extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: DesignsListView(),
+                child: BlocBuilder<HomePageCubit, HomePageState>(
+                  builder: (context, state) =>
+                      state.designs.isNotEmpty ? DesignsListView(models: state.designs) : SizedBox.shrink(),
+                ),
               ),
               SizedBox(height: 16),
               Text("By Adrian Antoci", style: TextStyle(fontSize: 12, color: Colors.white)),
@@ -83,51 +90,55 @@ class SidePanel extends StatelessWidget {
 }
 
 class DesignsListView extends StatefulWidget {
-  const DesignsListView({super.key});
+  const DesignsListView({
+    super.key,
+    required this.models,
+  });
+
+  final List<DesignModel> models;
 
   @override
   State<DesignsListView> createState() => _DesignsListViewState();
 }
 
 class _DesignsListViewState extends State<DesignsListView> with SingleTickerProviderStateMixin {
-  int _selected = 0;
-
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: ListView.separated(
-        shrinkWrap: true,
-        itemCount: 100,
-        separatorBuilder: (context, index) => SizedBox(
-          height: 10,
-        ),
-        itemBuilder: (context, index) => ListTile(
-          contentPadding: EdgeInsets.zero,
-          onTap: () {
-            setState(() {
-              _selected = index;
-            });
-          },
-          tileColor: index == _selected ? Colors.white.withOpacity(0.1) : Colors.transparent,
-          leading: AnimatedSize(
-            duration: Duration(milliseconds: 300),
-            child: Container(
-              width: 2,
-              height: index == _selected ? double.infinity : 0,
-              color: index == _selected ? Colors.red : Colors.transparent,
+    return BlocBuilder<HomePageCubit, HomePageState>(
+      buildWhen: (previous, current) => current.selectedDesignIndex != previous.selectedDesignIndex,
+      builder: (context, state) => Material(
+        color: Colors.transparent,
+        child: ListView.separated(
+          shrinkWrap: true,
+          itemCount: widget.models.length,
+          separatorBuilder: (context, index) => SizedBox(
+            height: 10,
+          ),
+          itemBuilder: (context, index) => ListTile(
+            contentPadding: EdgeInsets.zero,
+            onTap: () {
+              context.go('/d/${index + 1}');
+            },
+            tileColor: index == state.selectedDesignIndex ? Colors.white.withOpacity(0.1) : Colors.transparent,
+            leading: AnimatedSize(
+              duration: Duration(milliseconds: 300),
+              child: Container(
+                width: 2,
+                height: index == state.selectedDesignIndex ? double.infinity : 0,
+                color: index == state.selectedDesignIndex ? Colors.red : Colors.transparent,
+              ),
             ),
-          ),
-          title: Text(
-            "#$index",
-            style: TextStyle(
-                fontWeight: index == _selected ? FontWeight.w900 : FontWeight.normal,
-                color: Colors.white,
-                fontSize: 20),
-          ),
-          subtitle: Text(
-            "Super Design Mega",
-            style: TextStyle(color: Colors.white),
+            title: Text(
+              "#${index + 1}",
+              style: TextStyle(
+                  fontWeight: index == state.selectedDesignIndex ? FontWeight.w900 : FontWeight.normal,
+                  color: Colors.white,
+                  fontSize: 20),
+            ),
+            subtitle: Text(
+              widget.models[index].name,
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ),
       ),

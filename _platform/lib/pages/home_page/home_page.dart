@@ -1,38 +1,31 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:one_thousand_and_one_designs/pages/home_page/widgets/background.dart';
-import 'package:one_thousand_and_one_designs/pages/home_page/widgets/rounded_card.dart';
-import 'package:one_thousand_and_one_designs/pages/home_page/widgets/side_panel.dart';
+import 'package:one_thousand_and_one_designs/data_sources/models/api_models.dart';
+import 'package:one_thousand_and_one_designs/main.dart';
 import 'package:flutter/material.dart';
 import 'package:zoomable_interactive_viewer/zoomable_interactive_viewer.dart';
-
 import 'home_page_cubit.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({
+    super.key,
+    required this.pageIndex,
+  });
+
+  final int pageIndex;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _HomePageState extends State<HomePage> {
+  late final _assetsBaseUrl = getIt<AppConfig>().apiBaseUrl;
+
   @override
-  Widget build(BuildContext context) {
-    return Background(
-      child: Stack(
-        children: [
-          RoundedCard(
-            child: HomePageView(),
-          ),
-          SidePanel(),
-        ],
-      ),
-    );
+  void initState() {
+    context.read<HomePageCubit>().loadPageFromUrl(widget.pageIndex);
+    super.initState();
   }
-}
-
-class HomePageView extends StatelessWidget {
-  const HomePageView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +36,7 @@ class HomePageView extends StatelessWidget {
         } else if (state.fetchingFailed) {
           return _buildBodyErrorState();
         }
-        return _buildBodyDefaultState();
+        return _buildBodyDefaultState(state.selectedDesignIndex, state.designs[state.selectedDesignIndex]);
       },
     );
   }
@@ -76,51 +69,50 @@ class HomePageView extends StatelessWidget {
     );
   }
 
-  Widget _buildBodyDefaultState() {
-    return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 16,
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 64, top: 20),
-            child: _buildTitle(),
-          ),
-          SizedBox(
-            height: 16,
-          ),
-          Expanded(
-            child: ZoomableInteractiveViewer(
-                boundaryMargin: EdgeInsets.all(500),
-                constrained: true,
-                panEnabled: true,
-                maxScale: 4,
-                minScale: 0.1,
-                enableAnimation: false,
-                scaleEnabled: true,
-                child: Padding(
-                  padding: EdgeInsets.only(left: 100, right: 100, bottom: 100),
-                  child: SvgPicture.network(
-                    'assets/vector.svg',
-                  ),
-                )),
-          ),
-        ],
-      ),
+  Widget _buildBodyDefaultState(int count, DesignModel design) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 16,
+        ),
+        Padding(
+          padding: EdgeInsets.only(left: 64, top: 20),
+          child: _buildTitle(count, design.name),
+        ),
+        SizedBox(
+          height: 16,
+        ),
+        Expanded(
+          child: ZoomableInteractiveViewer(
+              boundaryMargin: EdgeInsets.all(500),
+              constrained: true,
+              panEnabled: true,
+              maxScale: 4,
+              minScale: 0.1,
+              enableAnimation: false,
+              scaleEnabled: true,
+              child: Padding(
+                padding: EdgeInsets.only(left: 100, right: 100, bottom: 100),
+                child: SvgPicture.network(
+                  '$_assetsBaseUrl/${design.folder}/vector.svg',
+                  placeholderBuilder: (context) => SizedBox.shrink(),
+                ),
+              )),
+        ),
+      ],
     );
   }
 
-  Widget _buildTitle() {
+  Widget _buildTitle(int count, String name) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "#21",
+          "#${count + 1}",
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 45, color: Colors.black),
         ),
-        Text("Contractors Timesheet"),
+        Text(name),
       ],
     );
   }

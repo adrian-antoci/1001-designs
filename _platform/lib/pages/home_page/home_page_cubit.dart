@@ -22,13 +22,17 @@ class HomePageCubit extends Cubit<HomePageState> {
     });
   }
 
-  Future<void> loadPage(int? index) async {
-    if (index == null) {
-      index = 0;
-    } else {
-      index -= 1;
-    }
+  Future<void> loadPage(int index) async {
     emit(state.copyWith(selectedDesignIndex: index));
+  }
+
+  loadPageFromUrl(int? page) {
+    if (page == null) {
+      page = 0;
+    } else {
+      page -= 1;
+    }
+    loadPage(page);
   }
 }
 

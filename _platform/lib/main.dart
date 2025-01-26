@@ -7,16 +7,21 @@ import 'package:one_thousand_and_one_designs/data_sources/sources/api_source.dar
 import 'package:one_thousand_and_one_designs/pages/home_page/home_page.dart';
 import 'package:one_thousand_and_one_designs/pages/home_page/home_page_cubit.dart';
 import 'package:one_thousand_and_one_designs/pages/home_page/use_cases/fetch_designs_use_case.dart';
+import 'package:one_thousand_and_one_designs/pages/home_page/widgets/background.dart';
+import 'package:one_thousand_and_one_designs/pages/home_page/widgets/rounded_card.dart';
 import 'package:one_thousand_and_one_designs/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'pages/home_page/widgets/side_panel.dart';
 
 final getIt = GetIt.instance;
 
 void main() {
   usePathUrlStrategy();
 
-  AppConfig config = AppConfig(env: AppEnv.prod, apiBaseUrl: 'https://url.com');
+  AppConfig config = AppConfig(
+      env: AppEnv.prod, apiBaseUrl: 'https://raw.githubusercontent.com/adrian-antoci/1001-designs/refs/heads/main');
 
   getIt.registerFactory<AppConfig>(() => config);
 
@@ -34,16 +39,37 @@ void main() {
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
+  final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>();
 
-  final _router = GoRouter(
-    initialLocation: '/d/1',
+  late final _router = GoRouter(
+    initialLocation: '/d/3',
     routes: [
-      GoRoute(
-        path: '/d/:index',
-        builder: (context, state) => BlocProvider(
-          create: (context) => getIt<HomePageCubit>()..loadPage(int.tryParse(state.pathParameters['index'] ?? '')),
-          child: MyHomePage(),
-        ),
+      ShellRoute(
+        navigatorKey: _shellNavigatorKey,
+        builder: (_, state, child) {
+          return BlocProvider(
+            create: (_) => getIt<HomePageCubit>(),
+            child: Background(
+              child: Stack(
+                children: [
+                  RoundedCard(
+                    child: child,
+                  ),
+                  SidePanel(),
+                ],
+              ),
+            ),
+          );
+        },
+        routes: [
+          GoRoute(
+            path: '/d/:index',
+            builder: (_, state) => HomePage(
+              key: UniqueKey(),
+              pageIndex: int.tryParse(state.pathParameters['index'] ?? '') ?? 0,
+            ),
+          ),
+        ],
       ),
     ],
   );
