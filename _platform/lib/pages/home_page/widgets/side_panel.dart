@@ -2,15 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:one_thousand_and_one_designs/data_sources/models/api_models.dart';
-import 'package:one_thousand_and_one_designs/pages/home_page/home_page_cubit.dart';
+import 'package:one_thousand_and_one_designs/pages/home_page/cubits/home_page_cubit.dart';
+import 'package:one_thousand_and_one_designs/pages/home_page/cubits/side_panel_cubit.dart';
 
 import '../../../widgets/scale_on_hover_container.dart';
 
-class SidePanel extends StatelessWidget {
-  final _panel = Colors.deepPurpleAccent;
+class SidePanel extends StatefulWidget {
+  SidePanel({super.key});
 
-  const SidePanel({super.key});
+  @override
+  State<SidePanel> createState() => _SidePanelState();
+}
+
+class _SidePanelState extends State<SidePanel> {
+  final _panel = Colors.deepPurpleAccent;
+  final TextEditingController _editingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +50,8 @@ class SidePanel extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 child: TextField(
+                  controller: _editingController,
+                  cursorColor: Colors.white,
                   style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
@@ -74,8 +82,12 @@ class SidePanel extends StatelessWidget {
               ),
               Expanded(
                 child: BlocBuilder<HomePageCubit, HomePageState>(
-                  builder: (context, state) =>
-                      state.designs.isNotEmpty ? DesignsListView(models: state.designs) : SizedBox.shrink(),
+                  builder: (context, state) => state.designs.isNotEmpty
+                      ? BlocProvider(
+                          create: (context) => SidePanelCubit(state.designs, _editingController),
+                          child: DesignsListView(),
+                        )
+                      : SizedBox.shrink(),
                 ),
               ),
               SizedBox(height: 16),
@@ -92,10 +104,7 @@ class SidePanel extends StatelessWidget {
 class DesignsListView extends StatefulWidget {
   const DesignsListView({
     super.key,
-    required this.models,
   });
-
-  final List<DesignModel> models;
 
   @override
   State<DesignsListView> createState() => _DesignsListViewState();
@@ -104,42 +113,45 @@ class DesignsListView extends StatefulWidget {
 class _DesignsListViewState extends State<DesignsListView> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomePageCubit, HomePageState>(
-      buildWhen: (previous, current) => current.selectedDesignIndex != previous.selectedDesignIndex,
-      builder: (context, state) => Material(
-        color: Colors.transparent,
-        child: ListView.separated(
-          shrinkWrap: true,
-          itemCount: widget.models.length,
-          separatorBuilder: (context, index) => SizedBox(
-            height: 10,
-          ),
-          itemBuilder: (context, index) => ListTile(
-            contentPadding: EdgeInsets.zero,
-            onTap: () {
-              context.go('/d/${index + 1}');
-            },
-            tileColor: index == state.selectedDesignIndex ? Colors.white.withOpacity(0.1) : Colors.transparent,
-            leading: AnimatedSize(
-              duration: Duration(milliseconds: 300),
-              child: Container(
-                width: 2,
-                height: index == state.selectedDesignIndex ? double.infinity : 0,
-                color: index == state.selectedDesignIndex ? Colors.red : Colors.transparent,
-              ),
-            ),
-            title: Text(
-              "#${index + 1}",
-              style: TextStyle(
-                  fontWeight: index == state.selectedDesignIndex ? FontWeight.w900 : FontWeight.normal,
-                  color: Colors.white,
-                  fontSize: 20),
-            ),
-            subtitle: Text(
-              widget.models[index].name,
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
+    return Material(
+      color: Colors.transparent,
+      child: BlocBuilder<HomePageCubit, HomePageState>(
+        buildWhen: (previous, current) => current.selectedDesignIndex != previous.selectedDesignIndex,
+        builder: (context, homePageState) => BlocBuilder<SidePanelCubit, SidePanelState>(
+          builder: (context, sidePanelState) => ListView.separated(
+              shrinkWrap: true,
+              itemCount: sidePanelState.searchResults.length,
+              separatorBuilder: (context, index) => SizedBox(
+                    height: 10,
+                  ),
+              itemBuilder: (context, index) {
+                final item = sidePanelState.searchResults[index];
+                final selected = item.count == homePageState.selectedDesignIndex;
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  onTap: () {
+                    context.go('/d/${sidePanelState.searchResults[index].count}');
+                  },
+                  tileColor: selected ? Colors.white.withOpacity(0.1) : Colors.transparent,
+                  leading: AnimatedSize(
+                    duration: Duration(milliseconds: 300),
+                    child: Container(
+                      width: 2,
+                      height: selected ? double.infinity : 0,
+                      color: selected ? Colors.red : Colors.transparent,
+                    ),
+                  ),
+                  title: Text(
+                    "#${sidePanelState.searchResults[index].count}",
+                    style: TextStyle(
+                        fontWeight: selected ? FontWeight.w900 : FontWeight.normal, color: Colors.white, fontSize: 20),
+                  ),
+                  subtitle: Text(
+                    sidePanelState.searchResults[index].name,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              }),
         ),
       ),
     );

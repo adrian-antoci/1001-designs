@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:one_thousand_and_one_designs/data_sources/api_data_source.dart';
 import 'package:one_thousand_and_one_designs/data_sources/sources/api_source.dart';
 import 'package:one_thousand_and_one_designs/pages/home_page/home_page.dart';
-import 'package:one_thousand_and_one_designs/pages/home_page/home_page_cubit.dart';
+import 'package:one_thousand_and_one_designs/pages/home_page/cubits/home_page_cubit.dart';
 import 'package:one_thousand_and_one_designs/pages/home_page/use_cases/fetch_designs_use_case.dart';
 import 'package:one_thousand_and_one_designs/pages/home_page/widgets/background.dart';
 import 'package:one_thousand_and_one_designs/pages/home_page/widgets/rounded_card.dart';

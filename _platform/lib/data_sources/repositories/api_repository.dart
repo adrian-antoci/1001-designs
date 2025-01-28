@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:one_thousand_and_one_designs/app/extensions.dart';
 import 'package:one_thousand_and_one_designs/data_sources/models/api_models.dart';
 import 'package:one_thousand_and_one_designs/main.dart';
+import 'package:collection/collection.dart';
 
 class APIRepository {
   APIRepository(this.config);
@@ -13,14 +14,15 @@ class APIRepository {
   Future<List<DesignModel>> fetchDesigns() async {
     final response = await Dio().get('${config.apiBaseUrl}/database.dat');
     final listOfFiles = (response.data as String).split("\n");
-    return listOfFiles
-        .where((item) => item.length > 5)
-        .map(
-          (item) => DesignModel(
-            folder: item,
-            name: item.replaceAll('_', " ").capitalize(),
+    final result = listOfFiles.where((item) => item.length > 5).mapIndexed(
+          (index, element) => DesignModel(
+            count: index + 1,
+            folder: element,
+            name: element.replaceAll('_', " ").capitalize(),
+            words: element.split('_'),
           ),
-        )
-        .toList();
+        );
+
+    return result.toList();
   }
 }

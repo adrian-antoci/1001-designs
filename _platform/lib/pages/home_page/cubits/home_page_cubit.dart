@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:one_thousand_and_one_designs/app/use_case.dart';
 import 'package:one_thousand_and_one_designs/data_sources/models/api_models.dart';
 
-import 'use_cases/fetch_designs_use_case.dart';
+import '../use_cases/fetch_designs_use_case.dart';
 
 part 'home_page_cubit.g.dart';
 
@@ -25,21 +25,12 @@ class HomePageCubit extends Cubit<HomePageState> {
   Future<void> loadPage(int index) async {
     emit(state.copyWith(selectedDesignIndex: index));
   }
-
-  loadPageFromUrl(int? page) {
-    if (page == null) {
-      page = 0;
-    } else {
-      page -= 1;
-    }
-    loadPage(page);
-  }
 }
 
 @CopyWith()
 class HomePageState {
   HomePageState({
-    this.selectedDesignIndex = 0,
+    this.selectedDesignIndex = 1,
     this.designs = const [],
     this.fetchingDesigns = false,
     this.fetchingFailed = false,

@@ -4,7 +4,7 @@ import 'package:one_thousand_and_one_designs/data_sources/models/api_models.dart
 import 'package:one_thousand_and_one_designs/main.dart';
 import 'package:flutter/material.dart';
 import 'package:zoomable_interactive_viewer/zoomable_interactive_viewer.dart';
-import 'home_page_cubit.dart';
+import 'cubits/home_page_cubit.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    context.read<HomePageCubit>().loadPageFromUrl(widget.pageIndex);
+    context.read<HomePageCubit>().loadPage(widget.pageIndex);
     super.initState();
   }
 
@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
         } else if (state.fetchingFailed) {
           return _buildBodyErrorState();
         }
-        return _buildBodyDefaultState(state.selectedDesignIndex, state.designs[state.selectedDesignIndex]);
+        return _buildBodyDefaultState(state.designs[state.selectedDesignIndex - 1]);
       },
     );
   }
@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildBodyDefaultState(int count, DesignModel design) {
+  Widget _buildBodyDefaultState(DesignModel design) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -78,7 +78,7 @@ class _HomePageState extends State<HomePage> {
         ),
         Padding(
           padding: EdgeInsets.only(left: 64, top: 20),
-          child: _buildTitle(count, design.name),
+          child: _buildTitle(design.count, design.name),
         ),
         SizedBox(
           height: 16,
@@ -109,7 +109,7 @@ class _HomePageState extends State<HomePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "#${count + 1}",
+          "#$count",
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 45, color: Colors.black),
         ),
         Text(name),
