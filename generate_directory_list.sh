@@ -8,3 +8,5 @@ do
     echo ${entry:0:$((${#entry} - 1))} >> $output_file_path
   fi
 done
+
+cat database.dat
