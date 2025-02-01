@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:one_thousand_and_one_designs/data_sources/models/api_models.dart';
 import 'package:one_thousand_and_one_designs/main.dart';
 import 'package:flutter/material.dart';
@@ -85,20 +86,18 @@ class _HomePageState extends State<HomePage> {
         ),
         Expanded(
           child: ZoomableInteractiveViewer(
-              boundaryMargin: EdgeInsets.all(500),
-              constrained: true,
-              panEnabled: true,
-              maxScale: 4,
-              minScale: 0.1,
-              enableAnimation: false,
-              scaleEnabled: true,
-              child: Padding(
-                padding: EdgeInsets.only(left: 100, right: 100, bottom: 100),
-                child: SvgPicture.network(
-                  '$_assetsBaseUrl/${design.folder}/vector.svg',
-                  placeholderBuilder: (context) => SizedBox.shrink(),
-                ),
-              )),
+            boundaryMargin: EdgeInsets.all(500),
+            constrained: true,
+            panEnabled: true,
+            maxScale: 4,
+            minScale: 0.1,
+            enableAnimation: false,
+            scaleEnabled: true,
+            child: Padding(
+              padding: EdgeInsets.only(left: 100, right: 100, bottom: 100),
+              child: _SVGPreviewWidget(url: '$_assetsBaseUrl/${design.folder}/vector.svg'),
+            ),
+          ),
         ),
       ],
     );
@@ -114,6 +113,29 @@ class _HomePageState extends State<HomePage> {
         ),
         Text(name),
       ],
+    );
+  }
+}
+
+class _SVGPreviewWidget extends StatefulWidget {
+  final String url;
+
+  const _SVGPreviewWidget({super.key, required this.url});
+
+  @override
+  State<_SVGPreviewWidget> createState() => _SVGPreviewWidgetState();
+}
+
+class _SVGPreviewWidgetState extends State<_SVGPreviewWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return HtmlElementView.fromTagName(
+      tagName: 'img',
+      onElementCreated: (dynamic video) {
+        video.src = widget.url;
+        video.style.width = '100%';
+        video.style.height = '100%';
+      },
     );
   }
 }
