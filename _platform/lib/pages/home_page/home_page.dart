@@ -1,11 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:one_thousand_and_one_designs/data_sources/models/api_models.dart';
 import 'package:one_thousand_and_one_designs/main.dart';
 import 'package:flutter/material.dart';
 import 'package:zoomable_interactive_viewer/zoomable_interactive_viewer.dart';
 import 'cubits/home_page_cubit.dart';
+import 'package:web/web.dart' as web;
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -95,7 +95,10 @@ class _HomePageState extends State<HomePage> {
             scaleEnabled: true,
             child: Padding(
               padding: EdgeInsets.only(left: 100, right: 100, bottom: 100),
-              child: _SVGPreviewWidget(url: '$_assetsBaseUrl/${design.folder}/vector.svg'),
+              // FIXME
+              child: design.folder.startsWith('Swara')
+                  ? _SVGPreviewWidget(url: '$_assetsBaseUrl/${design.folder}/vector.svg')
+                  : SvgPicture.network('$_assetsBaseUrl/${design.folder}/vector.svg'),
             ),
           ),
         ),
@@ -120,7 +123,7 @@ class _HomePageState extends State<HomePage> {
 class _SVGPreviewWidget extends StatefulWidget {
   final String url;
 
-  const _SVGPreviewWidget({super.key, required this.url});
+  const _SVGPreviewWidget({required this.url});
 
   @override
   State<_SVGPreviewWidget> createState() => _SVGPreviewWidgetState();
@@ -131,10 +134,11 @@ class _SVGPreviewWidgetState extends State<_SVGPreviewWidget> {
   Widget build(BuildContext context) {
     return HtmlElementView.fromTagName(
       tagName: 'img',
-      onElementCreated: (dynamic video) {
-        video.src = widget.url;
-        video.style.width = '100%';
-        video.style.height = '100%';
+      onElementCreated: (Object img) {
+        img as web.HTMLImageElement;
+        img.src = widget.url;
+        img.style.width = '100%';
+        img.style.height = '100%';
       },
     );
   }
