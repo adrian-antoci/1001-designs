@@ -85,20 +85,23 @@ class _HomePageState extends State<HomePage> {
           height: 16,
         ),
         Expanded(
-          child: ZoomableInteractiveViewer(
-            boundaryMargin: EdgeInsets.all(500),
-            constrained: true,
-            panEnabled: true,
-            maxScale: 4,
-            minScale: 0.1,
-            enableAnimation: false,
-            scaleEnabled: true,
-            child: Padding(
-              padding: EdgeInsets.only(left: 100, right: 100, bottom: 100),
-              // FIXME
-              child: design.folder.startsWith('Swara')
-                  ? _SVGPreviewWidget(url: '$_assetsBaseUrl/${design.folder}/vector.svg')
-                  : SvgPicture.network('$_assetsBaseUrl/${design.folder}/vector.svg'),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.grab,
+            child: ZoomableInteractiveViewer(
+              boundaryMargin: EdgeInsets.all(500),
+              constrained: true,
+              panEnabled: true,
+              maxScale: 4,
+              minScale: 0.1,
+              enableAnimation: false,
+              scaleEnabled: true,
+              child: Padding(
+                padding: EdgeInsets.only(left: 100, right: 100, bottom: 100),
+                // FIXME
+                child: design.folder.startsWith('swara')
+                    ? _SVGPreviewWidget(url: '$_assetsBaseUrl/${design.folder}/vector.svg')
+                    : SvgPicture.network('$_assetsBaseUrl/${design.folder}/vector.svg'),
+              ),
             ),
           ),
         ),
