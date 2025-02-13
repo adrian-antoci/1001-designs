@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:one_thousand_and_one_designs/data_sources/models/api_models.dart';
@@ -74,50 +76,35 @@ class _HomePageState extends State<HomePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: 16,
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 64, top: 20),
-          child: _buildTitle(design.count, design.name),
-        ),
-        SizedBox(
-          height: 16,
-        ),
-        Expanded(
-          child: MouseRegion(
-            cursor: SystemMouseCursors.grab,
-            child: ZoomableInteractiveViewer(
-              boundaryMargin: EdgeInsets.all(500),
-              constrained: true,
-              panEnabled: true,
-              maxScale: 4,
-              minScale: 0.1,
-              enableAnimation: false,
-              scaleEnabled: true,
-              child: Padding(
-                padding: EdgeInsets.only(left: 100, right: 100, bottom: 100),
-                // FIXME
-                child: design.folder.startsWith('swara')
-                    ? _SVGPreviewWidget(url: '$_assetsBaseUrl/${design.folder}/vector.svg')
-                    : SvgPicture.network('$_assetsBaseUrl/${design.folder}/vector.svg'),
+        ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(
+            dragDevices: {
+              PointerDeviceKind.touch,
+              PointerDeviceKind.mouse,
+            },
+          ),
+          child: Expanded(
+            child: MouseRegion(
+              cursor: SystemMouseCursors.grab,
+              child: ZoomableInteractiveViewer(
+                boundaryMargin: EdgeInsets.all(500),
+                constrained: true,
+                panEnabled: true,
+                maxScale: 4,
+                minScale: 0.1,
+                enableAnimation: false,
+                scaleEnabled: true,
+                child: Padding(
+                  padding: EdgeInsets.all(100),
+                  // FIXME
+                  child: design.folder.startsWith('swara')
+                      ? _SVGPreviewWidget(url: '$_assetsBaseUrl/${design.folder}/vector.svg')
+                      : SvgPicture.network('$_assetsBaseUrl/${design.folder}/vector.svg'),
+                ),
               ),
             ),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildTitle(int count, String name) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "#$count",
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 45, color: Colors.black),
-        ),
-        Text(name),
       ],
     );
   }
