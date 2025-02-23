@@ -14,14 +14,15 @@ class APIRepository {
   Future<List<DesignModel>> fetchDesigns() async {
     final response = await Dio().get('${config.apiBaseUrl}/database.dat');
     final listOfFiles = (response.data as String).split("\n");
-    final result = listOfFiles.where((item) => item.length > 5).mapIndexed(
-          (index, element) => DesignModel(
-            count: index + 1,
-            folder: element,
-            name: element.replaceAll('_', " ").capitalize(),
-            words: element.split('_'),
-          ),
-        );
+    final result = listOfFiles.where((item) => item.length > 5).mapIndexed((index, element) {
+      final parts = element.split('_');
+      return DesignModel(
+        count: index + 1,
+        folder: element,
+        name: parts.sublist(1, parts.length).join(' ').capitalize(),
+        words: parts,
+      );
+    });
 
     return result.toList();
   }

@@ -97,7 +97,7 @@ class _HomePageState extends State<HomePage> {
                 child: Padding(
                   padding: EdgeInsets.all(100),
                   // FIXME
-                  child: design.folder.startsWith('swara')
+                  child: design.folder.contains('swara')
                       ? _SVGPreviewWidget(url: '$_assetsBaseUrl/${design.folder}/vector.svg')
                       : SvgPicture.network('$_assetsBaseUrl/${design.folder}/vector.svg'),
                 ),

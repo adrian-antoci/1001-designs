@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:one_thousand_and_one_designs/pages/home_page/cubits/home_page_cubit.dart';
 import 'package:one_thousand_and_one_designs/pages/home_page/cubits/side_panel_cubit.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../widgets/scale_on_hover_container.dart';
 
@@ -91,8 +93,14 @@ class _SidePanelState extends State<SidePanel> {
                 ),
               ),
               SizedBox(height: 16),
-              Text("By Adrian Antoci", style: TextStyle(fontSize: 12, color: Colors.white)),
-              Text("Software Developer", style: TextStyle(fontSize: 12, color: Colors.white)),
+              InkWell(
+                onTap: () => launchUrlString('https://github.com/adrian-antoci/1001-designs'),
+                child: SvgPicture.asset(
+                  'assets/github.svg',
+                  color: Colors.white,
+                  height: 30,
+                ),
+              ),
             ],
           ),
         ),
