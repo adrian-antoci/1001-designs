@@ -1,3 +1,5 @@
+./generate_database.sh
+
 git add .
 
 echo 'Enter the commit message:'
