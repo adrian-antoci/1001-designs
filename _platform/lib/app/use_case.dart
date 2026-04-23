@@ -19,7 +19,7 @@ Future<UseCase<T>> useCase<T>(Future<T> Function() request) async {
     return UseCaseSuccess(result);
   } on AppException catch (ex) {
     return UseCaseFailure(ex);
-  } on Exception catch (ex, st) {
+  } catch (ex, st) {
     return UseCaseFailure(AppUnexpectedException(ex.toString(), st));
   }
 }
@@ -30,7 +30,7 @@ UseCase<T> useCaseSync<T>(T Function() request) {
     return UseCaseSuccess(result);
   } on AppException catch (ex) {
     return UseCaseFailure(ex);
-  } on Exception catch (ex, st) {
+  } catch (ex, st) {
     return UseCaseFailure(AppUnexpectedException(ex.toString(), st));
   }
 }
