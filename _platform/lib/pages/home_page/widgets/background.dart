@@ -11,13 +11,8 @@ class Background extends StatelessWidget {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          color: Colors.grey,
-        ),
-        child: Container(
-          color: Colors.black12,
-          child: child,
-        ),
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        child: child,
       ),
     );
   }

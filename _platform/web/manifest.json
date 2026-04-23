@@ -1,11 +1,11 @@
 {
-    "name": "_platform",
-    "short_name": "_platform",
+    "name": "1001 Designs",
+    "short_name": "1001 Designs",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#121212",
+    "theme_color": "#121212",
+    "description": "A curated collection of 1001 UI designs, built with Flutter. Get inspired and kickstart your next project.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,13 +1,11 @@
-import 'dart:ui';
-
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:one_thousand_and_one_designs/data_sources/models/api_models.dart';
+import 'package:one_thousand_and_one_designs/l10n/app_localizations.dart';
 import 'package:one_thousand_and_one_designs/main.dart';
-import 'package:flutter/material.dart';
-import 'package:zoomable_interactive_viewer/zoomable_interactive_viewer.dart';
+
 import 'cubits/home_page_cubit.dart';
-import 'package:web/web.dart' as web;
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -23,11 +21,30 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final _assetsBaseUrl = getIt<AppConfig>().apiBaseUrl;
+  late final TransformationController _transformationController;
 
   @override
   void initState() {
-    context.read<HomePageCubit>().loadPage(widget.pageIndex);
     super.initState();
+    context.read<HomePageCubit>().loadPage(widget.pageIndex);
+    _transformationController = TransformationController(Matrix4.identity()
+      ..scale(0.6)
+      ..translate(1000.0, 200)); // Translate 150 logical pixels to the right);
+  }
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
+  }
+
+  void _handleMouseScroll(PointerSignalEvent event) {
+    if (event is PointerScrollEvent) {
+      final double scaleChange = event.scrollDelta.dy < 0 ? 1.1 : 0.9;
+      final Matrix4 transform = _transformationController.value.clone();
+      transform.scale(scaleChange, scaleChange);
+      _transformationController.value = transform;
+    }
   }
 
   @override
@@ -35,101 +52,61 @@ class _HomePageState extends State<HomePage> {
     return BlocBuilder<HomePageCubit, HomePageState>(
       builder: (context, state) {
         if (state.fetchingDesigns) {
-          return _buildBodyLoadingState();
+          return _buildBodyLoadingState(context);
         } else if (state.fetchingFailed) {
-          return _buildBodyErrorState();
+          return _buildBodyErrorState(context);
         }
-        return _buildBodyDefaultState(state.designs[state.selectedDesignIndex - 1]);
+        final design = state.designs[state.selectedDesignIndex - 1];
+
+        return Listener(
+          onPointerSignal: _handleMouseScroll,
+          child: InteractiveViewer(
+            transformationController: _transformationController,
+            boundaryMargin: const EdgeInsets.all(double.infinity),
+            constrained: true,
+            panEnabled: true,
+            maxScale: 4,
+            minScale: 0.1,
+            child: SvgPicture.network('$_assetsBaseUrl/${design.folder}/vector.svg'),
+          ),
+        );
       },
     );
   }
 
-  Widget _buildBodyLoadingState() {
+  Widget _buildBodyLoadingState(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Loading...",
-          style: TextStyle(fontSize: 35),
+          l10n.loading,
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
-        Text("It won't take long", style: TextStyle(fontSize: 22)),
+        Text(
+          l10n.itWontTakeLong,
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
       ],
     );
   }
 
-  Widget _buildBodyErrorState() {
+  Widget _buildBodyErrorState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          ":( Some went wrong",
-          style: TextStyle(fontSize: 35),
+          l10n.someWentWrong,
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
-        Text("Please try again", style: TextStyle(fontSize: 22)),
-      ],
-    );
-  }
-
-  Widget _buildBodyDefaultState(DesignModel design) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            dragDevices: {
-              PointerDeviceKind.touch,
-              PointerDeviceKind.mouse,
-            },
-          ),
-          child: Expanded(
-            child: MouseRegion(
-              cursor: SystemMouseCursors.grab,
-              child: ZoomableInteractiveViewer(
-                boundaryMargin: EdgeInsets.all(500),
-                constrained: true,
-                panEnabled: true,
-                maxScale: 4,
-                minScale: 0.1,
-                enableAnimation: false,
-                scaleEnabled: true,
-                child: Padding(
-                  padding: EdgeInsets.all(100),
-                  // FIXME
-                  child: design.folder.contains('swara')
-                      ? _SVGPreviewWidget(url: '$_assetsBaseUrl/${design.folder}/vector.svg')
-                      : SvgPicture.network('$_assetsBaseUrl/${design.folder}/vector.svg'),
-                ),
-              ),
-            ),
-          ),
+        Text(
+          l10n.pleaseTryAgain,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
       ],
-    );
-  }
-}
-
-class _SVGPreviewWidget extends StatefulWidget {
-  final String url;
-
-  const _SVGPreviewWidget({required this.url});
-
-  @override
-  State<_SVGPreviewWidget> createState() => _SVGPreviewWidgetState();
-}
-
-class _SVGPreviewWidgetState extends State<_SVGPreviewWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return HtmlElementView.fromTagName(
-      tagName: 'img',
-      onElementCreated: (Object img) {
-        img as web.HTMLImageElement;
-        img.src = widget.url;
-        img.style.width = '100%';
-        img.style.height = '100%';
-      },
     );
   }
 }
