@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage> {
     context.read<HomePageCubit>().loadPage(widget.pageIndex);
     _transformationController = TransformationController(Matrix4.identity()
       ..scale(0.6)
-      ..translate(1000.0, 200)); // Translate 150 logical pixels to the right);
+      ..translate(1000.0, 200));
   }
 
   @override
